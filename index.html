@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snort IDS – Installation & Configuration | Christabel Cybersecurity Portfolio</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --warn: #d29922;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --tag-bg: #1f6feb33;
+      --tag-border: #1f6feb;
+      --red: #f85149;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 24px 36px;
+      text-align: center;
+    }
+
+    .brand {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    header h1 span { color: var(--accent); }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+
+    .tag {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--tag-border);
+      background: var(--tag-bg);
+      color: var(--accent);
+      letter-spacing: 0.03em;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .meta span::before { margin-right: 6px; }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── SECTION HEADINGS ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin-bottom: 10px;
+    }
+
+    p { color: var(--text-muted); margin-bottom: 14px; }
+    p strong { color: var(--text); }
+
+    /* ── OVERVIEW CARDS ── */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .card-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 4px; }
+    .card-value { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+    /* ── OBJECTIVES LIST ── */
+    .obj-list { list-style: none; margin-bottom: 48px; }
+    .obj-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .obj-list li:last-child { border-bottom: none; }
+    .obj-list li::before {
+      content: "✓";
+      color: var(--accent2);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── STEP BLOCKS ── */
+    .step-block {
+      margin-bottom: 56px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #000;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-title { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+
+    /* ── CODE BLOCKS ── */
+    .code-block {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--accent2);
+      margin: 14px 0;
+      overflow-x: auto;
+    }
+
+    .code-block .comment { color: var(--text-muted); }
+    .code-block .cmd { color: var(--accent); }
+
+    /* ── SCREENSHOT ── */
+    .screenshot-wrap {
+      margin: 20px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .screenshot-bar {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .screenshot-bar-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    .screenshot-wrap img {
+      width: 100%;
+      display: block;
+    }
+
+    .screenshot-caption {
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      font-style: italic;
+    }
+
+    /* ── RULES TABLE ── */
+    .rules-table-wrap {
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead tr {
+      background: var(--surface2);
+      border-bottom: 2px solid var(--accent);
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    tr:hover td { background: var(--surface2); }
+
+    .sid { color: var(--warn); font-weight: 700; }
+    .proto { color: var(--accent); font-weight: 700; }
+    .alert-type { color: var(--red); font-weight: 700; }
+    .msg-text { color: var(--text); }
+
+    /* ── ALERT LOG ── */
+    .alert-log {
+      background: #000;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      border-radius: 6px;
+      padding: 16px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #a0e060;
+      margin: 16px 0;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    .alert-log .ts { color: #888; }
+    .alert-log .sid-ref { color: #ffbd2e; }
+    .alert-log .msg { color: #58e6ff; }
+    .alert-log .dir { color: #a0e060; }
+
+    /* ── SKILLS GAINED ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin: 16px 0 48px;
+    }
+
+    .skill-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .skill-card h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .skill-card p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    footer strong { color: var(--accent); }
+
+    /* ── UTILITY ── */
+    .spacer { margin-bottom: 48px; }
+    .highlight { color: var(--accent2); font-weight: 600; }
+
+    /* ── MITRE BADGE ── */
+    .mitre-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+    .mitre-badge {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 4px;
+      background: #1c2333;
+      border: 1px solid var(--warn);
+      color: var(--warn);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ HEADER ══════════════════════════════ -->
+<header>
+  <div class="brand">Christabel Cybersecurity Portfolio</div>
+  <h1>Snort IDS — <span>Installation &amp; Configuration</span></h1>
+  <p class="subtitle">
+    A hands-on home lab project deploying Snort 2.9 as a Network Intrusion Detection System (NIDS)
+    on Ubuntu Linux, with custom detection rules validated against live attack simulation.
+  </p>
+  <div class="tags">
+    <span class="tag">Intrusion Detection</span>
+    <span class="tag">Network Security</span>
+    <span class="tag">Snort 2.9</span>
+    <span class="tag">Ubuntu Linux</span>
+    <span class="tag">NIDS</span>
+    <span class="tag">SOC Analyst Skills</span>
+  </div>
+  <div class="meta">
+    <span>📅 June 2026</span>
+    <span>🛠 Home Lab Environment</span>
+    <span>🎯 SOC Analyst Portfolio</span>
+    <span>🖥 VirtualBox VM</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════ MAIN ══════════════════════════════ -->
+<main>
+
+  <!-- PROJECT OVERVIEW -->
+  <div class="section-label">Project Overview</div>
+  <h2>What This Project Covers</h2>
+  <div class="overview-grid">
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <div class="card-label">Tool</div>
+      <div class="card-value">Snort 2.9.15.1</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🐧</div>
+      <div class="card-label">Platform</div>
+      <div class="card-value">Ubuntu Linux (VirtualBox)</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📜</div>
+      <div class="card-label">Custom Rules</div>
+      <div class="card-value">5 Detection Rules</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚨</div>
+      <div class="card-label">Validated Against</div>
+      <div class="card-value">Nmap + Ping Attacks</div>
+    </div>
+  </div>
+
+  <!-- OBJECTIVES -->
+  <div class="section-label">Learning Objectives</div>
+  <h2>Goals</h2>
+  <ul class="obj-list">
+    <li>Install and verify Snort 2.9 on an Ubuntu Linux virtual machine</li>
+    <li>Configure the Snort network variables in <code style="color:var(--accent);background:var(--surface2);padding:1px 6px;border-radius:4px;font-size:0.85em">snort.conf</code> to match the lab environment</li>
+    <li>Write custom detection rules in <code style="color:var(--accent);background:var(--surface2);padding:1px 6px;border-radius:4px;font-size:0.85em">local.rules</code> to identify ICMP pings and Nmap scans</li>
+    <li>Validate alerts are generated by running real Nmap scans from a Windows host</li>
+    <li>Understand how a NIDS fits into a Security Operations Centre (SOC) workflow</li>
+  </ul>
+
+  <!-- ── STEP 1 ── -->
+  <div class="step-block">
+    <div class="section-label">Step 1 of 4</div>
+    <div class="step-header">
+      <div class="step-number">1</div>
+      <div class="step-title">Install Snort and Verify the Version</div>
+    </div>
+
+    <p>
+      Snort was installed on the Ubuntu VirtualBox VM using the system package manager.
+      After installation, the <strong>snort --version</strong> command was run to confirm
+      the correct version was active and all required libraries were linked.
+    </p>
+
+    <div class="code-block">
+      <span class="comment"># Install Snort via apt</span><br>
+      sudo apt-get install snort -y<br><br>
+      <span class="comment"># Confirm the installed version</span><br>
+      <span class="cmd">snort --version</span>
+    </div>
+
+    <p>
+      The output confirmed <strong>Snort 2.9.15.1 GRE (Build 15125)</strong> with
+      libpcap 1.10.1, PCRE 8.39, and ZLIB 1.2.11 — all dependencies required for
+      full packet inspection capability.
+    </p>
+
+    <div class="screenshot-wrap">
+      <div class="screenshot-bar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="screenshot-bar-title">christabel@christabel-VirtualBox: /etc/snort/rules — Terminal</span>
+      </div>
+      <img src="images/step1-snort-installed.png" alt="Terminal output showing Snort 2.9.15.1 version confirmation" loading="lazy" />
+      <div class="screenshot-caption">Figure 1 — Snort 2.9.15.1 GRE successfully installed. The snort --version command confirms the build number and all linked libraries (libpcap, PCRE, ZLIB).</div>
+    </div>
+
+    <h3>Why This Matters</h3>
+    <p>
+      Version verification is a fundamental step in any tool deployment. In a real SOC,
+      running the wrong version of an IDS can mean missing detection signatures, having
+      incompatible rule formats, or leaving known vulnerabilities in the sensor itself unpatched.
+    </p>
+  </div>
+
+  <!-- ── STEP 2 ── -->
+  <div class="step-block">
+    <div class="section-label">Step 2 of 4</div>
+    <div class="step-header">
+      <div class="step-number">2</div>
+      <div class="step-title">Configure snort.conf — Network Variables</div>
+    </div>
+
+    <p>
+      The Snort configuration file at <strong>/etc/snort/snort.conf</strong> was opened
+      using <strong>sudo nano snort.conf</strong>. The key network variables were reviewed
+      and set to match the home lab network topology.
+    </p>
+
+    <div class="code-block">
+      <span class="comment"># Open the Snort configuration file</span><br>
+      <span class="cmd">sudo nano /etc/snort/snort.conf</span><br><br>
+      <span class="comment"># Key variables configured inside the file:</span><br>
+      ipvar HOME_NET any<br>
+      ipvar EXTERNAL_NET any<br>
+      ipvar DNS_SERVERS $HOME_NET<br>
+      ipvar HTTP_SERVERS $HOME_NET<br>
+      ipvar SQL_SERVERS $HOME_NET
+    </div>
+
+    <p>
+      <strong>HOME_NET</strong> defines the network Snort is defending. Setting it to <code style="color:var(--accent);background:var(--surface2);padding:1px 6px;border-radius:4px;font-size:0.85em">any</code> in
+      the lab means Snort will monitor all traffic regardless of direction — appropriate for a
+      controlled lab environment where all traffic is trusted test traffic.
+    </p>
+
+    <div class="screenshot-wrap">
+      <div class="screenshot-bar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="screenshot-bar-title">GNU nano 6.2 — snort.conf</span>
+      </div>
+      <img src="images/step2-snort-config.png" alt="snort.conf opened in GNU nano showing network variable configuration" loading="lazy" />
+      <div class="screenshot-caption">Figure 2 — The snort.conf file open in nano. Network variables HOME_NET and EXTERNAL_NET are visible, along with server group definitions for DNS, HTTP, SQL, SMTP, Telnet, SSH, and FTP services.</div>
+    </div>
+
+    <h3>Why This Matters</h3>
+    <p>
+      Correct <strong>HOME_NET</strong> configuration is critical. If this is wrong,
+      Snort will either miss inbound attacks (because it does not know what to protect)
+      or generate floods of false positives from internal traffic. In a production SOC,
+      this value is set to the specific subnets of the organisation.
+    </p>
+  </div>
+
+  <!-- ── STEP 3 ── -->
+  <div class="step-block">
+    <div class="section-label">Step 3 of 4</div>
+    <div class="step-header">
+      <div class="step-number">3</div>
+      <div class="step-title">Write Custom Detection Rules in local.rules</div>
+    </div>
+
+    <p>
+      Five custom detection rules were written in <strong>/etc/snort/rules/local.rules</strong>.
+      These rules target ICMP ping activity and four common Nmap scan techniques used by
+      attackers during the reconnaissance phase of an attack.
+    </p>
+
+    <div class="code-block">
+      <span class="comment"># ICMP Ping detection</span><br>
+      alert icmp any any -&gt; any any (msg:"ICMP Ping Detected"; itype:8; sid:1000001; rev:1;)<br><br>
+      <span class="comment"># Nmap TCP SYN scan (half-open)</span><br>
+      alert tcp any any -&gt; $HOME_NET any (msg:"NMAP SYN SCAN detected"; flags:S; threshold:type both, track by_src, count 10, seconds 1; sid:1000002; rev:1;)<br><br>
+      <span class="comment"># Nmap TCP Connect scan</span><br>
+      alert tcp any any -&gt; $HOME_NET any (msg:"NMAP TCP Scan Detected"; flags:S; threshold:type both, track by_src, count 10, seconds 1; sid:1000002; rev:1;)<br><br>
+      <span class="comment"># Nmap NULL scan (no flags set)</span><br>
+      alert tcp any any -&gt; $HOME_NET any (msg:"NMAP NULL Scan Detected"; flags:0; sid:1000003; rev:1;)<br><br>
+      <span class="comment"># Nmap FIN scan</span><br>
+      alert tcp any any -&gt; $HOME_NET any (msg:"NMAP FIN Scan Detected"; flags:F; sid:1000004; rev:1;)<br><br>
+      <span class="comment"># Nmap XMAS scan (FIN+PSH+URG flags)</span><br>
+      alert tcp any any -&gt; $HOME_NET any (msg:"NMAP XMAS Scan Detected"; flags:FPU; sid:1000005; rev:1;)
+    </div>
+
+    <div class="screenshot-wrap">
+      <div class="screenshot-bar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="screenshot-bar-title">GNU nano 6.2 — local.rules</span>
+      </div>
+      <img src="images/step3-detection-rules.png" alt="local.rules file showing all five custom Snort detection rules" loading="lazy" />
+      <div class="screenshot-caption">Figure 3 — The local.rules file showing all five custom detection rules targeting ICMP pings and Nmap SYN, NULL, FIN, and XMAS scans. Each rule has a unique SID (Snort ID) starting at 1000001.</div>
+    </div>
+
+    <h3>Rules Summary Table</h3>
+    <div class="rules-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>SID</th>
+            <th>Protocol</th>
+            <th>Alert Type</th>
+            <th>Detection Logic</th>
+            <th>MITRE Technique</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="sid">1000001</td>
+            <td class="proto">ICMP</td>
+            <td class="msg-text">ICMP Ping Detected</td>
+            <td><code>itype:8</code> (Echo Request)</td>
+            <td>T1018 / T1046</td>
+          </tr>
+          <tr>
+            <td class="sid">1000002</td>
+            <td class="proto">TCP</td>
+            <td class="msg-text">NMAP SYN SCAN detected</td>
+            <td><code>flags:S</code> + threshold 10/sec</td>
+            <td>T1046</td>
+          </tr>
+          <tr>
+            <td class="sid">1000002</td>
+            <td class="proto">TCP</td>
+            <td class="msg-text">NMAP TCP Scan Detected</td>
+            <td><code>flags:S</code> + threshold 10/sec</td>
+            <td>T1046</td>
+          </tr>
+          <tr>
+            <td class="sid">1000003</td>
+            <td class="proto">TCP</td>
+            <td class="msg-text">NMAP NULL Scan Detected</td>
+            <td><code>flags:0</code> (no TCP flags)</td>
+            <td>T1046</td>
+          </tr>
+          <tr>
+            <td class="sid">1000004</td>
+            <td class="proto">TCP</td>
+            <td class="msg-text">NMAP FIN Scan Detected</td>
+            <td><code>flags:F</code> (FIN only)</td>
+            <td>T1046</td>
+          </tr>
+          <tr>
+            <td class="sid">1000005</td>
+            <td class="proto">TCP</td>
+            <td class="msg-text">NMAP XMAS Scan Detected</td>
+            <td><code>flags:FPU</code> (FIN+PSH+URG)</td>
+            <td>T1046</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mitre-list">
+      <span class="mitre-badge">MITRE T1046 — Network Service Discovery</span>
+      <span class="mitre-badge">MITRE T1018 — Remote System Discovery</span>
+      <span class="mitre-badge">TA0043 — Reconnaissance</span>
+    </div>
+
+    <h3>Why This Matters</h3>
+    <p>
+      Attackers routinely use Nmap during the reconnaissance phase to identify open ports,
+      running services, and operating systems before launching an actual attack.
+      These rules map directly to <strong>MITRE ATT&amp;CK T1046 — Network Service Discovery</strong>.
+      Writing rules like these teaches you how to translate threat intelligence into
+      actionable detection logic — a core skill for any detection engineer or SOC analyst.
+    </p>
+  </div>
+
+  <!-- ── STEP 4 ── -->
+  <div class="step-block">
+    <div class="section-label">Step 4 of 4</div>
+    <div class="step-header">
+      <div class="step-number">4</div>
+      <div class="step-title">Run Attack Simulation and Validate Alerts</div>
+    </div>
+
+    <p>
+      With Snort running in alert mode on the Ubuntu VM, a Windows host on the same
+      network was used to simulate attacks using <strong>Nmap 7.99</strong> and
+      the <strong>ping</strong> command via Windows PowerShell. The Ubuntu VM's
+      IP address was <strong>192.168.0.81</strong>.
+    </p>
+
+    <div class="code-block">
+      <span class="comment"># Commands run from Windows PowerShell against the Ubuntu VM (192.168.0.81)</span><br><br>
+      <span class="comment"># TCP Connect scan</span><br>
+      <span class="cmd">nmap -Pn -sT 192.168.0.81</span><br><br>
+      <span class="comment"># TCP SYN (stealth) scan</span><br>
+      <span class="cmd">nmap -Pn -sS 192.168.0.81</span><br><br>
+      <span class="comment"># ICMP ping sweep</span><br>
+      <span class="cmd">ping 192.168.0.81</span>
+    </div>
+
+    <p>
+      The dual-screen capture below shows the <strong>Windows PowerShell</strong> window
+      running the scans on the right, with the <strong>Snort alert log</strong> on the
+      Ubuntu VM generating real-time alerts on the left. Snort successfully detected and
+      logged the ICMP Ping and Nmap scan activity.
+    </p>
+
+    <div class="screenshot-wrap">
+      <div class="screenshot-bar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="screenshot-bar-title">Windows PowerShell + Snort Alert Log — Live Detection</span>
+      </div>
+      <img src="images/step4-rule-detail.png" alt="Split view showing Nmap scans in PowerShell and Snort alerts firing on Ubuntu" loading="lazy" />
+      <div class="screenshot-caption">Figure 4 — Split view: Windows PowerShell (right) running nmap -Pn -sT and ping against 192.168.0.81, while the Snort alert console (left) logs real-time detections including ICMP Ping Detected [SID:1000001] and SCAN UPnP service discover attempts.</div>
+    </div>
+
+    <div class="screenshot-wrap">
+      <div class="screenshot-bar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="screenshot-bar-title">Snort Alert Log — ICMP and Scan Alerts</span>
+      </div>
+      <img src="images/step5-alerts-detected.png" alt="Snort alert log showing ICMP Ping Detected and SCAN alerts firing" loading="lazy" />
+      <div class="screenshot-caption">Figure 5 — Snort alert output showing timestamped entries for [1:1000001:1] ICMP Ping Detected and [1:1917:6] SCAN UPnP service discover attempt, confirming the detection rules are firing correctly against real traffic.</div>
+    </div>
+
+    <h3>Sample Alert Log Output</h3>
+    <div class="alert-log">
+      <span class="ts">06/13-10:27:57.715872</span>  <span class="sid-ref">[**] [1:1000001:1] ICMP Ping Detected [**]</span><br>
+      <span class="msg">  [Priority: 0] {ICMP}</span> <span class="dir">192.168.0.102 -&gt; 192.168.0.81</span><br>
+      <br>
+      <span class="ts">06/13-10:27:56.103931</span>  <span class="sid-ref">[**] [1:1917:6] SCAN UPnP service discover attempt [**]</span><br>
+      <span class="msg">  [Classification: Detection of a Network Scan] [Priority: 3]</span> <span class="dir">{UDP} 192.168.0.14:44521 -&gt; 239.255.255.250:1900</span><br>
+      <br>
+      <span class="ts">06/13-10:28:01.535156</span>  <span class="sid-ref">[**] [1:1917:6] SCAN UPnP service discover attempt [**]</span><br>
+      <span class="msg">  [Classification: Detection of a Network Scan] [Priority: 3]</span> <span class="dir">{UDP} 192.168.0.14:44521 -&gt; 239.255.255.250:1900</span><br>
+      <br>
+      <span class="ts">06/13-10:28:00.727825</span>  <span class="sid-ref">[**] [1:1000001:1] ICMP Ping Detected [**]</span><br>
+      <span class="msg">  [Priority: 0] {ICMP}</span> <span class="dir">192.168.0.102 -&gt; 192.168.0.81</span>
+    </div>
+
+    <h3>Why This Matters</h3>
+    <p>
+      Alert validation closes the loop on the whole project. Writing a rule without proving
+      it fires is not enough — in a real SOC, unvalidated rules are a liability. They may
+      never fire at all, or they may fire on the wrong traffic. This step proves the
+      end-to-end chain: <strong>attack occurs → packet captured → rule matched → alert generated</strong>.
+      That chain is the foundation of any detection engineering workflow.
+    </p>
+  </div>
+
+  <!-- ── SKILLS GAINED ── -->
+  <div class="section-label">Outcomes</div>
+  <h2>Skills Demonstrated</h2>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <h4>🛠 Tool Deployment</h4>
+      <p>Installed and configured Snort 2.9 from scratch on a Linux system, including dependency verification.</p>
+    </div>
+    <div class="skill-card">
+      <h4>📝 Rule Writing</h4>
+      <p>Authored custom Snort rules targeting ICMP and TCP-based reconnaissance techniques using correct syntax and SIDs.</p>
+    </div>
+    <div class="skill-card">
+      <h4>🎯 Detection Engineering</h4>
+      <p>Translated threat intelligence (Nmap scan types) into actionable detection logic mapped to MITRE ATT&CK.</p>
+    </div>
+    <div class="skill-card">
+      <h4>🔬 Alert Validation</h4>
+      <p>Ran live attack simulations from a Windows host and confirmed Snort generated correct, timestamped alerts.</p>
+    </div>
+    <div class="skill-card">
+      <h4>🧩 Config Management</h4>
+      <p>Edited snort.conf to correctly define HOME_NET, EXTERNAL_NET, and server group variables for the lab environment.</p>
+    </div>
+    <div class="skill-card">
+      <h4>📊 Log Analysis</h4>
+      <p>Read and interpreted raw Snort alert output including SID references, protocol data, and source/destination IPs.</p>
+    </div>
+  </div>
+
+  <!-- ── REFLECTIONS ── -->
+  <div class="section-label">Reflection</div>
+  <h2>What I Learned</h2>
+  <p>
+    This project gave me practical experience with one of the most widely used open-source IDS tools
+    in the security industry. The key insight was understanding the difference between <strong>writing a rule</strong>
+    and <strong>validating a rule</strong>. A detection that has never been tested against real traffic is
+    not a detection — it is just a hope.
+  </p>
+  <p>
+    I also gained a clearer understanding of how <strong>Nmap scan types differ at the TCP flag level</strong>.
+    A SYN scan sends only the SYN flag and never completes the handshake, which means it is harder for
+    basic firewalls to log. A NULL scan sends no flags at all, exploiting how some older systems respond
+    to malformed packets. A XMAS scan lights up FIN, PSH, and URG simultaneously — like plugging in a
+    Christmas tree, hence the name. Each of these has a different detection signature, which is why
+    separate rules are needed for each.
+  </p>
+  <p>
+    In a SOC environment, an analyst would see these alerts in a SIEM such as Splunk or Microsoft Sentinel.
+    Understanding what Snort detects and why it fires — not just that it fires — is what separates a
+    reactive alert-acknowledger from a skilled analyst who can tune rules, reduce false positives,
+    and improve detection coverage over time.
+  </p>
+
+</main>
+
+<!-- ══════════════════════════════ FOOTER ══════════════════════════════ -->
+<footer>
+  <p>
+    <strong>Christabel Cybersecurity Portfolio</strong> &nbsp;|&nbsp;
+    SOC Analyst Lab Project &nbsp;|&nbsp; Snort IDS Installation &amp; Configuration
+  </p>
+  <p style="margin-top:8px; font-size:12px;">
+    Lab environment: Ubuntu Linux 22.04 on VirtualBox &nbsp;·&nbsp;
+    Snort 2.9.15.1 &nbsp;·&nbsp; Nmap 7.99 &nbsp;·&nbsp;
+    All testing conducted in an isolated home lab network.
+  </p>
+</footer>
+
+</body>
+</html>
